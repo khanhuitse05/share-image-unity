@@ -10,11 +10,20 @@ public class ShareImage : MonoBehaviour {
     private bool isProcessing = false;
     private string shareText = "#BlockDash";
     private string subject = "#BlockDash";
+    private string titleText = "#BlockDash";
+
+    // Onclick share Image
     public void onShareImage()
     {
         if (!isProcessing)
             StartCoroutine(ShareScreenshot());
     }
+    // onClick share simple text
+    public void onShareSimpleText()
+    {
+        ShareSimpleText();
+    }
+    // Take a Photo and share
     private IEnumerator ShareScreenshot()
     {
         isProcessing = true;
@@ -28,37 +37,53 @@ public class ShareImage : MonoBehaviour {
         string destination = Path.Combine(Application.persistentDataPath, System.DateTime.Now.ToString("yyyy-MM-dd-HHmmss") + ".png");
         File.WriteAllBytes(destination, dataToSave);
 
-#if UNITY_ANDROID
         ShareImageFromPath(destination);
-#elif UNITY_IOS
-        ShareImageFromPath(destination);
-#endif
         isProcessing = false;
     }
+
 #if UNITY_ANDROID
+    // Share Image
     private void ShareImageFromPath(string _destination)
     {
-        if (!Application.isEditor)
-        {
-            AndroidJavaClass intentClass = new AndroidJavaClass("android.content.Intent");
-            AndroidJavaObject intentObject = new AndroidJavaObject("android.content.Intent");
-            intentObject.Call<AndroidJavaObject>("setAction", intentClass.GetStatic<string> ("ACTION_SEND"));
-            intentObject.Call<AndroidJavaObject>("putExtra", intentClass.GetStatic<string>("EXTRA_TEXT"), shareText);
-            intentObject.Call<AndroidJavaObject>("putExtra", intentClass.GetStatic<string>("EXTRA_SUBJECT"), subject);
-            AndroidJavaClass uriClass = new AndroidJavaClass("android.net.Uri");
-            AndroidJavaObject uriObject = uriClass.CallStatic<AndroidJavaObject>("parse", "file://" + _destination);
-            intentObject.Call<AndroidJavaObject>("putExtra", intentClass.GetStatic<string>("EXTRA_STREAM"), uriObject);
-            intentObject.Call<AndroidJavaObject>("setType", "image/jpeg");
-            AndroidJavaClass unity = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-            AndroidJavaObject currentActivity = unity.GetStatic<AndroidJavaObject>("currentActivity");
-            currentActivity.Call("startActivity", intentObject);
-        }
+        AndroidJavaClass intentClass = new AndroidJavaClass("android.content.Intent");
+        AndroidJavaObject intentObject = new AndroidJavaObject("android.content.Intent");
+        // Set action for intent
+        intentObject.Call<AndroidJavaObject>("setAction", intentClass.GetStatic<string>("ACTION_SEND"));
+        intentObject.Call<AndroidJavaObject>("putExtra", intentClass.GetStatic<string>("EXTRA_TEXT"), shareText);
+        intentObject.Call<AndroidJavaObject>("putExtra", intentClass.GetStatic<string>("EXTRA_SUBJECT"), subject);
+        AndroidJavaClass uriClass = new AndroidJavaClass("android.net.Uri");
+        AndroidJavaObject uriObject = uriClass.CallStatic<AndroidJavaObject>("parse", "file://" + _destination);
+        intentObject.Call<AndroidJavaObject>("putExtra", intentClass.GetStatic<string>("EXTRA_STREAM"), uriObject);
+        intentObject.Call<AndroidJavaObject>("setType", "image/jpeg");
+        AndroidJavaClass unity = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+        AndroidJavaObject currentActivity = unity.GetStatic<AndroidJavaObject>("currentActivity");
+        currentActivity.Call("startActivity", intentObject);
     }
-
+    // Share Text
+    private void ShareSimpleText()
+    {
+        AndroidJavaClass intentClass = new AndroidJavaClass("android.content.Intent");
+        AndroidJavaObject intentObject = new AndroidJavaObject("android.content.Intent");
+        // Set action for intent
+        intentObject.Call<AndroidJavaObject>("setAction", intentClass.GetStatic<string>("ACTION_SEND"));
+        intentObject.Call<AndroidJavaObject>("setType", "text/plain");
+        intentObject.Call<AndroidJavaObject>("putExtra", intentClass.GetStatic<string>("EXTRA_SUBJECT"), subject);
+        intentObject.Call<AndroidJavaObject>("putExtra", intentClass.GetStatic<string>("EXTRA_TITLE"), titleText);
+        intentObject.Call<AndroidJavaObject>("putExtra", intentClass.GetStatic<string>("EXTRA_TEXT"), shareText);
+        AndroidJavaClass unity = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+        AndroidJavaObject currentActivity = unity.GetStatic<AndroidJavaObject>("currentActivity");
+        currentActivity.Call("startActivity", intentObject);
+    }
 #elif UNITY_IOS
+    // Share Image
     private void ShareImageFromPath(string _destination)
     {
         GeneralSharingiOSBridge.ShareTextWithImage(_destination, shareText);
+    }
+    // Share Text
+    private void ShareSimpleText()
+    {
+        GeneralSharingiOSBridge.ShareSimpleText(shareText);
     }
 #endif
 }
