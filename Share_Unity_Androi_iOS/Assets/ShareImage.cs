@@ -8,9 +8,7 @@ using System.Runtime.InteropServices;
 public class ShareImage : MonoBehaviour {
 
     private bool isProcessing = false;
-    private string shareText = "#BlockDash";
-    private string subject = "#BlockDash";
-    private string titleText = "#BlockDash";
+    private string message = "WOW! #Block Dash! Play with me it's free: https://play.google.com/store/apps/details?id=com.fuky.blockdash";
 
     // Onclick share Image
     public void onShareImage()
@@ -48,16 +46,17 @@ public class ShareImage : MonoBehaviour {
         AndroidJavaClass intentClass = new AndroidJavaClass("android.content.Intent");
         AndroidJavaObject intentObject = new AndroidJavaObject("android.content.Intent");
         // Set action for intent
+        //EXTRA_EMAIL, EXTRA_CC, EXTRA_BCC, EXTRA_SUBJECT, EXTRA_TITLE, EXTRA_TEXT, EXTRA_STREAM,
         intentObject.Call<AndroidJavaObject>("setAction", intentClass.GetStatic<string>("ACTION_SEND"));
-        intentObject.Call<AndroidJavaObject>("putExtra", intentClass.GetStatic<string>("EXTRA_TEXT"), shareText);
-        intentObject.Call<AndroidJavaObject>("putExtra", intentClass.GetStatic<string>("EXTRA_SUBJECT"), subject);
+        intentObject.Call<AndroidJavaObject>("putExtra", intentClass.GetStatic<string>("EXTRA_TEXT"), message);
         AndroidJavaClass uriClass = new AndroidJavaClass("android.net.Uri");
         AndroidJavaObject uriObject = uriClass.CallStatic<AndroidJavaObject>("parse", "file://" + _destination);
         intentObject.Call<AndroidJavaObject>("putExtra", intentClass.GetStatic<string>("EXTRA_STREAM"), uriObject);
-        intentObject.Call<AndroidJavaObject>("setType", "image/jpeg");
+        intentObject.Call<AndroidJavaObject>("setType", "image/*");
         AndroidJavaClass unity = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
         AndroidJavaObject currentActivity = unity.GetStatic<AndroidJavaObject>("currentActivity");
-        currentActivity.Call("startActivity", intentObject);
+        AndroidJavaObject jChooser = intentClass.CallStatic<AndroidJavaObject>("createChooser", intentObject, "Share Via");
+        currentActivity.Call("startActivity", jChooser);
     }
     // Share Text
     private void ShareSimpleText()
@@ -65,25 +64,25 @@ public class ShareImage : MonoBehaviour {
         AndroidJavaClass intentClass = new AndroidJavaClass("android.content.Intent");
         AndroidJavaObject intentObject = new AndroidJavaObject("android.content.Intent");
         // Set action for intent
+        //EXTRA_EMAIL, EXTRA_CC, EXTRA_BCC, EXTRA_SUBJECT, EXTRA_TITLE, EXTRA_TEXT, EXTRA_STREAM,
         intentObject.Call<AndroidJavaObject>("setAction", intentClass.GetStatic<string>("ACTION_SEND"));
+        intentObject.Call<AndroidJavaObject>("putExtra", intentClass.GetStatic<string>("EXTRA_TEXT"), message);
         intentObject.Call<AndroidJavaObject>("setType", "text/plain");
-        intentObject.Call<AndroidJavaObject>("putExtra", intentClass.GetStatic<string>("EXTRA_SUBJECT"), subject);
-        intentObject.Call<AndroidJavaObject>("putExtra", intentClass.GetStatic<string>("EXTRA_TITLE"), titleText);
-        intentObject.Call<AndroidJavaObject>("putExtra", intentClass.GetStatic<string>("EXTRA_TEXT"), shareText);
         AndroidJavaClass unity = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
         AndroidJavaObject currentActivity = unity.GetStatic<AndroidJavaObject>("currentActivity");
-        currentActivity.Call("startActivity", intentObject);
+        AndroidJavaObject jChooser = intentClass.CallStatic<AndroidJavaObject>("createChooser", intentObject, "Share Via");
+        currentActivity.Call("startActivity", jChooser);
     }
 #elif UNITY_IOS
     // Share Image
     private void ShareImageFromPath(string _destination)
     {
-        GeneralSharingiOSBridge.ShareTextWithImage(_destination, shareText);
+        GeneralSharingiOSBridge.ShareTextWithImage(_destination, message);
     }
     // Share Text
     private void ShareSimpleText()
     {
-        GeneralSharingiOSBridge.ShareSimpleText(shareText);
+        GeneralSharingiOSBridge.ShareSimpleText(message);
     }
 #endif
 }
