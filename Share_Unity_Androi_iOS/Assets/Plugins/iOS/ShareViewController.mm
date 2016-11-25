@@ -1,8 +1,8 @@
 //
-//  ViewController.m
+//  ShareViewController.m
 //  
 
-@implementation ViewController : UIViewController
+@implementation ShareViewController : UIViewController
 
 -(void) shareMethod: (const char *) path Message : (const char *) shareMessage
 {
@@ -50,7 +50,7 @@
 
 extern "C"{
     void _TAG_ShareTextWithImage(const char * path, const char * message){
-        ViewController *vc = [[ViewController alloc] init];
+        ShareViewController *vc = [[ShareViewController alloc] init];
         [vc shareMethod:path Message:message];
         [vc release];
     }
