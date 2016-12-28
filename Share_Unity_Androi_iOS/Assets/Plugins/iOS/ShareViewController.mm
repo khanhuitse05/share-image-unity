@@ -22,7 +22,6 @@
     }
     else
         [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:activityVc animated:YES completion:nil];
-    [activityVc release];
 }
 -(void) shareOnlyTextMethod: (const char *) shareMessage
 {
@@ -41,7 +40,6 @@
     }
     else
         [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:activityVc animated:YES completion:nil];
-    [activityVc release];
 }
 
 @end
@@ -52,13 +50,11 @@ extern "C"{
     void _TAG_ShareTextWithImage(const char * path, const char * message){
         ShareViewController *vc = [[ShareViewController alloc] init];
         [vc shareMethod:path Message:message];
-        [vc release];
     }
 }
 extern "C"{
     void _TAG_ShareSimpleText(const char * message){
-        ViewController *vc = [[ViewController alloc] init];
+        ShareViewController *vc = [[ShareViewController alloc] init];
         [vc shareOnlyTextMethod: message];
-        [vc release];
     }
 }
