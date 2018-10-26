@@ -1,12 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
-using UnityEngine.UI;
 using System.IO;
-using System;
-using System.Runtime.InteropServices;
 
-public class ShareImage : MonoBehaviour {
-
+public class ShareImage : MonoBehaviour
+{
+    public static ShareImage Instance { get; private set; }
+    private void Awake()
+    {
+        Instance = this;
+    }
     private bool isProcessing = false;
     private string message = "WOW! #GoodGame! Play with me it's free.";
 
@@ -17,10 +19,11 @@ public class ShareImage : MonoBehaviour {
             StartCoroutine(ShareScreenshot());
     }
     // onClick share simple text
-    public void onShareSimpleText()
+    public void onShareSimpleText(string textshare)
     {
-        ShareSimpleText();
+        ShareSimpleText(textshare);
     }
+
     // Take a Photo and share
     private IEnumerator ShareScreenshot()
     {
@@ -59,14 +62,14 @@ public class ShareImage : MonoBehaviour {
         currentActivity.Call("startActivity", jChooser);
     }
     // Share Text
-    private void ShareSimpleText()
+    private void ShareSimpleText(string textshare)
     {
         AndroidJavaClass intentClass = new AndroidJavaClass("android.content.Intent");
         AndroidJavaObject intentObject = new AndroidJavaObject("android.content.Intent");
         // Set action for intent
         //EXTRA_EMAIL, EXTRA_CC, EXTRA_BCC, EXTRA_SUBJECT, EXTRA_TITLE, EXTRA_TEXT, EXTRA_STREAM,
         intentObject.Call<AndroidJavaObject>("setAction", intentClass.GetStatic<string>("ACTION_SEND"));
-        intentObject.Call<AndroidJavaObject>("putExtra", intentClass.GetStatic<string>("EXTRA_TEXT"), message);
+        intentObject.Call<AndroidJavaObject>("putExtra", intentClass.GetStatic<string>("EXTRA_TEXT"), textshare);
         intentObject.Call<AndroidJavaObject>("setType", "text/plain");
         AndroidJavaClass unity = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
         AndroidJavaObject currentActivity = unity.GetStatic<AndroidJavaObject>("currentActivity");
@@ -80,9 +83,9 @@ public class ShareImage : MonoBehaviour {
         GeneralSharingiOSBridge.ShareTextWithImage(_destination, message);
     }
     // Share Text
-    private void ShareSimpleText()
+    private void ShareSimpleText(string _message)
     {
-        GeneralSharingiOSBridge.ShareSimpleText(message);
+        GeneralSharingiOSBridge.ShareSimpleText(_message);
     }
 #else
     // Share Image
@@ -90,7 +93,7 @@ public class ShareImage : MonoBehaviour {
     {
     }
     // Share Text
-    private void ShareSimpleText()
+    private void ShareSimpleText(string message)
     {
     }
 #endif
